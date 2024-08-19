@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monthly Calendar</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #2e2e2e;
+        }
+
+        .calendar-container {
+            background-color: #1e1e1e;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            width: 300px;
+            color: #ddd;
+        }
+
+        .calendar-header {
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            padding: 10px;
+            font-size: 18px;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .nav-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #444;
+            border: none;
+            color: #ddd;
+            font-size: 18px;
+            padding: 5px 10px;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background 0.3s ease;
+        }
+
+        .nav-btn:hover {
+            background: #555;
+        }
+
+        .nav-btn.prev {
+            left: 10px;
+        }
+
+        .nav-btn.next {
+            right: 10px;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            border-top: 1px solid #444;
+        }
+
+        .calendar-day {
+            border-right: 1px solid #444;
+            border-bottom: 1px solid #444;
+            padding: 10px;
+            text-align: center;
+            box-sizing: border-box;
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+
+        .calendar-day:nth-child(-n+7) {
+            font-weight: bold;
+            background-color: #333;
+        }
+
+        .calendar-day:hover {
+            background-color: #555;
+            color: #fff;
+        }
+
+        .calendar-day:last-child {
+            border-right: none;
+        }
+
+        .calendar-day {
+            height: 60px;
+            line-height: 60px;
+        }
+
+        .calendar-day.prev-month,
+        .calendar-day.next-month {
+            color: #777;
+        }
+    </style>
+</head>
+<body>
+    <div class="calendar-container">
+        <div class="calendar-header">
+            <button class="nav-btn prev" onclick="changeMonth(-1)"><i class="fas fa-chevron-left"></i></button>
+            <span id="calendarHeader"></span>
+            <button class="nav-btn next" onclick="changeMonth(1)"><i class="fas fa-chevron-right"></i></button>
+        </div>
+        <div class="calendar-grid" id="calendarGrid"></div>
+    </div>
+
+    <script>
+        let today = new Date();
+        let currentYear = today.getFullYear();
+        let currentMonth = today.getMonth();
+
+        function generateCalendar() {
+            const calendarHeader = document.getElementById('calendarHeader');
+            const calendarGrid = document.getElementById('calendarGrid');
+            
+            const firstDayOfMonth = new Date(currentYear, currentMonth, 1);
+            const lastDayOfMonth = new Date(currentYear, currentMonth + 1, 0);
+            const lastDayOfPreviousMonth = new Date(currentYear, currentMonth, 0);
+            
+            const daysInMonth = lastDayOfMonth.getDate();
+            const firstDayOfWeek = firstDayOfMonth.getDay();
+            const daysInPreviousMonth = lastDayOfPreviousMonth.getDate();
+            
+            const headerDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+            calendarHeader.textContent = `${today.toLocaleString('default', { month: 'long' })} ${currentYear}`;
+            
+            // Clear previous grid content
+            calendarGrid.innerHTML = '';
+            
+            // Add header days
+            headerDays.forEach(day => {
+                const dayElement = document.createElement('div');
+                dayElement.className = 'calendar-day';
+                dayElement.textContent = day;
+                calendarGrid.appendChild(dayElement);
+            });
+            
+            // Fill previous month's days
+            for (let i = firstDayOfWeek - 1; i >= 0; i--) {
+                const dayElement = document.createElement('div');
+                dayElement.className = 'calendar-day prev-month';
+                dayElement.textContent = daysInPreviousMonth - i;
+                calendarGrid.appendChild(dayElement);
+            }
+            
+            // Fill current month's days
+            for (let i = 1; i <= daysInMonth; i++) {
+                const dayElement = document.createElement('div');
+                dayElement.className = 'calendar-day';
+                dayElement.textContent = i;
+                calendarGrid.appendChild(dayElement);
+            }
+            
+            // Fill next month's days
+            const totalDaysInGrid = firstDayOfWeek + daysInMonth;
+            const totalDaysToFill = 42 - totalDaysInGrid; // 6 weeks in a calendar view
+            
+            for (let i = 1; i <= totalDaysToFill; i++) {
+                const dayElement = document.createElement('div');
+                dayElement.className = 'calendar-day next-month';
+                dayElement.textContent = i;
+                calendarGrid.appendChild(dayElement);
+            }
+        }
+
+        function changeMonth(direction) {
+            currentMonth += direction;
+            if (currentMonth < 0) {
+                currentMonth = 11;
+                currentYear--;
+            } else if (currentMonth > 11) {
+                currentMonth = 0;
+                currentYear++;
+            }
+            today = new Date(currentYear, currentMonth);
+            generateCalendar();
+        }
+
+        generateCalendar();
+    </script>
+</body>
+</html>
